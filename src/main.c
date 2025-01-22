@@ -85,6 +85,18 @@ void Limit_Switch_Init_GPIOA(uint32_t pin){
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
+void Init_Ouput_Pin_GPIOA(uint32_t pin){
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  
+  GPIO_InitStruct.Pin = pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
 /**
   * @}
   */ /* End of ExampleTypes */
@@ -101,6 +113,7 @@ int main(void)
   BSP_Init();
 
   Limit_Switch_Init_GPIOA(GPIO_PIN_0);
+  Init_Ouput_Pin_GPIOA(GPIO_PIN_8);
   
 #ifdef NUCLEO_USE_USART
   /* Transmit the initial message to the PC via UART */
@@ -125,10 +138,19 @@ int main(void)
   while (1)
   {
     /* Check if any Application Command for L6470 has been entered by USART */
-    //USART_CheckAppCmd();
-
-    //printf("\n%ld",(uint32_t)HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0));  
-    USART_Transmit(&huart2,  num2hex(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0), HALFBYTE_F));
+    USART_CheckAppCmd();
+ 
+    //USART_Transmit(&huart2,  num2hex(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0), HALFBYTE_F));
+    // GPIO_PinState state;
+    
+    // state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+    // if(state){
+    //   USART_Transmit(&huart2, "\non");
+    //   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+    // } else{
+    //   USART_Transmit(&huart2, "\noff");
+    //   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+    // }
   }
 #endif
 }
