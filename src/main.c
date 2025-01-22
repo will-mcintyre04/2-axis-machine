@@ -73,6 +73,18 @@
   #error "Please define "NUCLEO_USE_USART" in "stm32fxxx_x-nucleo-ihm02a1.h"!"
 #endif
 
+void Limit_Switch_Init_GPIOA(uint32_t pin){
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
 /**
   * @}
   */ /* End of ExampleTypes */
@@ -87,6 +99,8 @@ int main(void)
   
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
+
+  Limit_Switch_Init_GPIOA(GPIO_PIN_0);
   
 #ifdef NUCLEO_USE_USART
   /* Transmit the initial message to the PC via UART */
@@ -111,7 +125,10 @@ int main(void)
   while (1)
   {
     /* Check if any Application Command for L6470 has been entered by USART */
-    USART_CheckAppCmd();
+    //USART_CheckAppCmd();
+
+    //printf("\n%ld",(uint32_t)HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0));  
+    USART_Transmit(&huart2,  num2hex(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0), HALFBYTE_F));
   }
 #endif
 }
