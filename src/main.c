@@ -73,7 +73,7 @@
   #error "Please define "NUCLEO_USE_USART" in "stm32fxxx_x-nucleo-ihm02a1.h"!"
 #endif
 
-void Limit_Switch_Init_GPIOA(uint32_t pin){
+void Init_Input_Pin_GPIOA(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -85,17 +85,31 @@ void Limit_Switch_Init_GPIOA(uint32_t pin){
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
-void Init_Ouput_Pin_GPIOA(uint32_t pin){
+void Init_Output_Pin_GPIOA(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
   
   GPIO_InitStruct.Pin = pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
+
+void Init_Interrupt_pin_GPIO_B4(){
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; 
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  
+  /* Enable and set Interrupt to the lowest priority */
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0x0F, 0x00);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+}
+
 
 /**
   * @}
@@ -112,8 +126,9 @@ int main(void)
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Limit_Switch_Init_GPIOA(GPIO_PIN_0);
-  Init_Ouput_Pin_GPIOA(GPIO_PIN_8);
+  Init_Input_Pin_GPIOA(GPIO_PIN_0);
+  Init_Output_Pin_GPIOA(GPIO_PIN_1);
+  Init_Interrupt_pin_GPIO_B4();
   
 #ifdef NUCLEO_USE_USART
   /* Transmit the initial message to the PC via UART */
@@ -138,19 +153,19 @@ int main(void)
   while (1)
   {
     /* Check if any Application Command for L6470 has been entered by USART */
-    USART_CheckAppCmd();
+    //USART_CheckAppCmd();
  
     //USART_Transmit(&huart2,  num2hex(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0), HALFBYTE_F));
-    // GPIO_PinState state;
     
-    // state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
-    // if(state){
-    //   USART_Transmit(&huart2, "\non");
-    //   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-    // } else{
-    //   USART_Transmit(&huart2, "\noff");
-    //   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
-    // }
+    // while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) {}
+
+    // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+
+    // while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {}
+
+    /*
+    */
   }
 #endif
 }
