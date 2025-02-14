@@ -61,6 +61,11 @@ void EXTI1_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
 void SysTick_Handler(void);
 void USART2_IRQHandler(void);
+void TIM2_IRQHandler(void);
+
+extern TIM_HandleTypeDef htim2; // External declaration
+
+
 
 /**
   * @}
