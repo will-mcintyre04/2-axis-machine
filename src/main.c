@@ -37,6 +37,8 @@
  
 #include "example.h"
 #include "example_usart.h"
+#include "params.h"
+#include "xnucleoihm02a1.h"
 
 /**
   * @defgroup   MotionControl
@@ -127,27 +129,27 @@ void Init_Interrupt_Pin_GPIO_9_5(){
   HAL_GPIO_Init(GPIOC, &GPIOC_InitStruct);
   
   /* Enable and set Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x0F, 0x00);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0x0F, 0x00);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 }
 
+void StopMotor(uint8_t board, uint8_t device){
+  StepperMotorBoardHandle_t *StepperMotorBoardHandle;
+  StepperMotorBoardHandle = BSP_GetExpansionBoardHandle(board);
 
+  StepperMotorBoardHandle->StepperMotorDriverHandle[device]->Command->PrepareHardStop(device);
 
-void MX_TIM2_Init(void) {
-  TIM_HandleTypeDef htim2;
+  // Execute the stop command
+  StepperMotorBoardHandle->Command->PerformPreparedApplicationCommand();
+}
 
-  __HAL_RCC_TIM2_CLK_ENABLE();
+void RunMotor(uint8_t board, uint8_t device, uint32_t speed, uint32_t step)
+{
+    StepperMotorBoardHandle_t *StepperMotorBoardHandle = BSP_GetExpansionBoardHandle(board);
 
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0; // Prescaler value needs to be found
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = DEBOUNCE_DELAY_MS - 1;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-
-  HAL_TIM_Base_Init(&htim2);
-
-  HAL_NVIC_SetPriority(TIM2_IRQn, 0x0F, 0x00);
+    // Prepare and execute the move command
+    StepperMotorBoardHandle->Command->Move(board, device, L6470_DIR_FWD_ID, step);
+    while(StepperMotorBoardHandle->Command->CheckStatusRegisterFlag(board, device, BUSY_ID) == 0);
 }
 
 
@@ -192,7 +194,8 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-    
+    RunMotor(0, 0, 5000, 5000);
+    HAL_Delay(1000);
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
  
