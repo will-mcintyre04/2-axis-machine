@@ -75,7 +75,11 @@
   #error "Please define "NUCLEO_USE_USART" in "stm32fxxx_x-nucleo-ihm02a1.h"!"
 #endif
 
-void Init_Input_Pin_GPIOA(uint32_t pin){
+#define DEBOUNCE_DELAY_MS 50 // Debounce delay in milliseconds
+
+volatile uint8_t debounce_active = 0;
+
+void Init_Input_Pin_GPIOB(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -84,7 +88,7 @@ void Init_Input_Pin_GPIOA(uint32_t pin){
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 void Init_Output_Pin_GPIOA(uint32_t pin){
@@ -99,13 +103,30 @@ void Init_Output_Pin_GPIOA(uint32_t pin){
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
-void Init_Interrupt_pin_GPIO_B4(){
-  GPIO_InitTypeDef GPIO_InitStruct;
+void Init_Interrupt_Pin_GPIO_9_5(){
+  GPIO_InitTypeDef GPIOA_InitStruct;
+  GPIO_InitTypeDef GPIOB_InitStruct;
+  GPIO_InitTypeDef GPIOC_InitStruct;
 
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING; 
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  GPIOA_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIOA_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIOA_InitStruct.Speed = GPIO_SPEED_FAST;
+
+  GPIOB_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIOB_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIOB_InitStruct.Speed = GPIO_SPEED_FAST;
+
+  GPIOC_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIOC_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIOC_InitStruct.Speed = GPIO_SPEED_FAST;
+
+  GPIOA_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+  GPIOB_InitStruct.Pin = GPIO_PIN_6;
+  GPIOC_InitStruct.Pin = GPIO_PIN_7;
+
+  HAL_GPIO_Init(GPIOA, &GPIOA_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIOB_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIOC_InitStruct);
   
   /* Enable and set Interrupt to the lowest priority */
   HAL_NVIC_SetPriority(EXTI4_IRQn, 0x0F, 0x00);
@@ -147,9 +168,9 @@ int main(void)
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Init_Input_Pin_GPIOA(GPIO_PIN_0);
-  Init_Output_Pin_GPIOA(GPIO_PIN_1);
-  Init_Interrupt_pin_GPIO_B4();
+  //Init_Input_Pin_GPIOB(GPIO_PIN_0);
+  Init_Output_Pin_GPIOA(GPIO_PIN_0);
+  Init_Interrupt_Pin_GPIO_9_5();
   
 #ifdef NUCLEO_USE_USART
   /* Transmit the initial message to the PC via UART */
@@ -173,12 +194,13 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+
     RunMotor(0, 0, 5000, 5000);
-    HAL_Delay(1000);
+
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
  
-    //USART_Transmit(&huart2,  num2hex(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0), HALFBYTE_F));
+    //USART_Transmit(&huart2,  ("PIN 5", HALFBYTE_F));
     
     // while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) {}
 
@@ -188,7 +210,8 @@ int main(void)
     // while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {}
 
     /*
-    */
+    */ 
+
   }
 #endif
 }
