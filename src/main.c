@@ -37,6 +37,8 @@
  
 #include "example.h"
 #include "example_usart.h"
+#include "params.h"
+#include "xnucleoihm02a1.h"
 
 /**
   * @defgroup   MotionControl
@@ -110,6 +112,25 @@ void Init_Interrupt_pin_GPIO_B4(){
   HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 }
 
+void StopMotor(uint8_t board, uint8_t device){
+  StepperMotorBoardHandle_t *StepperMotorBoardHandle;
+  StepperMotorBoardHandle = BSP_GetExpansionBoardHandle(board);
+
+  StepperMotorBoardHandle->StepperMotorDriverHandle[device]->Command->PrepareHardStop(device);
+
+  // Execute the stop command
+  StepperMotorBoardHandle->Command->PerformPreparedApplicationCommand();
+}
+
+void RunMotor(uint8_t board, uint8_t device, uint32_t speed, uint32_t step)
+{
+    StepperMotorBoardHandle_t *StepperMotorBoardHandle = BSP_GetExpansionBoardHandle(board);
+
+    // Prepare and execute the move command
+    StepperMotorBoardHandle->Command->Move(board, device, L6470_DIR_FWD_ID, step);
+    while(StepperMotorBoardHandle->Command->CheckStatusRegisterFlag(board, device, BUSY_ID) == 0);
+}
+
 
 /**
   * @}
@@ -152,6 +173,8 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+    RunMotor(0, 0, 5000, 5000);
+    HAL_Delay(1000);
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
  
