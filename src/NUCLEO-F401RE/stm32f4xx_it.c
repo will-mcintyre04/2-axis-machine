@@ -36,6 +36,9 @@
 #include "xnucleoihm02a1_interface.h"
 #include "example_usart.h"
 
+// extern debounce_active;
+// extern TIM_HandleTypeDef htim2;
+
 /**
   * @addtogroup MicrosteppingMotor_Example
   * @{
@@ -96,16 +99,54 @@ void USART2_IRQHandler(void)
   USART_ITCharManager(&huart2);
 }
 
-void EXTI4_IRQHandler(void)
+// void EXTI4_IRQHandler(void)
+// {
+//   /* EXTI line interrupt detected */
+//   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4) != RESET) 
+//   {
+//     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
+
+//     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+//     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+//   }
+// }
+
+void EXTI9_5_IRQHandler(void)
 {
-    /* EXTI line interrupt detected */
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_4) != RESET) 
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) 
   {
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+    USART_Transmit(&huart2, "PIN 6");
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    //HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+  }
 
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
+  {
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+    USART_Transmit(&huart2, "PIN 7");
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    //HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+  }
+  
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
+  {
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+    USART_Transmit(&huart2, "PIN 8");
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    //HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+  }
+  
+  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
+  {
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+    USART_Transmit(&huart2, "PIN 9");
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    //HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
   }
 }
 
@@ -116,6 +157,19 @@ void EXTI15_10_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
+
+// void TIM2_IRQHandler(void)
+// {
+//   if(__HAL_TIM_GET_FLAG(&htim2, TIM_FLAG_UPDATE) != RESET)
+//   {
+//     if(__HAL_TIM_GET_IT_SOURCE(&htim2, TIM_IT_UPDATE) !=RESET)
+//     {
+//       __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
+//       HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
+//       debounce_active = 0;
+//     }
+//   }
+// }
 
 /**
   * @}
