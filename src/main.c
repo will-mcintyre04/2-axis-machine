@@ -194,12 +194,13 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+
     RunMotor(0, 0, 5000, 5000);
-    HAL_Delay(1000);
+
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
  
-    USART_Transmit(&huart2,  ("PIN 5", HALFBYTE_F));
+    //USART_Transmit(&huart2,  ("PIN 5", HALFBYTE_F));
     
     // while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) {}
 

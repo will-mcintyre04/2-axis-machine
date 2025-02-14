@@ -35,6 +35,7 @@
 #include "stm32f4xx_it.h"
 #include "xnucleoihm02a1_interface.h"
 #include "example_usart.h"
+#include "main.c"
 
 // extern debounce_active;
 // extern TIM_HandleTypeDef htim2;
@@ -134,10 +135,8 @@ void EXTI9_5_IRQHandler(void)
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-    USART_Transmit(&huart2, "PIN 8");
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-    //HAL_Delay(1000);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    StopMotor(0,0);
+    HAL_Delay(1000);
   }
   
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
