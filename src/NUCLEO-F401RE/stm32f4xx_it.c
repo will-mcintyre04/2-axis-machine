@@ -118,34 +118,32 @@ void EXTI9_5_IRQHandler(void)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
     USART_Transmit(&huart2, "PIN 6");
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-    //HAL_Delay(1000);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    L6470_PrepareHardStop(0);
+    L6470_HardStop(0);
   }
 
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
     USART_Transmit(&huart2, "PIN 7");
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-    //HAL_Delay(1000);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    L6470_PrepareHardStop(0);
+    L6470_HardStop(0);
   }
   
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-    StopMotor(0,0);
-    HAL_Delay(1000);
+    USART_Transmit(&huart2, "PIN 8");
+    L6470_PrepareHardStop(1);
+    L6470_HardStop(1);
   }
   
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
   {
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
     USART_Transmit(&huart2, "PIN 9");
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
-    //HAL_Delay(1000);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    L6470_PrepareHardStop(1);
+    L6470_HardStop(1);
   }
 }
 

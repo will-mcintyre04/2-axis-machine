@@ -107,49 +107,37 @@ void Init_Interrupt_Pin_GPIO_9_5(){
   GPIO_InitTypeDef GPIOA_InitStruct;
   GPIO_InitTypeDef GPIOB_InitStruct;
   GPIO_InitTypeDef GPIOC_InitStruct;
+  GPIO_InitTypeDef GPIOA1_InitStruct;
 
-  GPIOA_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIOA_InitStruct.Pull = GPIO_PULLUP;
   GPIOA_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIOA_InitStruct.Speed = GPIO_SPEED_FAST;
 
-  GPIOB_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIOB_InitStruct.Pull = GPIO_PULLUP;
   GPIOB_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIOB_InitStruct.Speed = GPIO_SPEED_FAST;
 
-  GPIOC_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIOC_InitStruct.Pull = GPIO_PULLUP;
   GPIOC_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIOC_InitStruct.Speed = GPIO_SPEED_FAST;
 
-  GPIOA_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+  GPIOA1_InitStruct.Pull = GPIO_PULLUP;
+  GPIOA1_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIOA1_InitStruct.Speed = GPIO_SPEED_FAST;
+
+  GPIOA_InitStruct.Pin = GPIO_PIN_8;
+  GPIOA1_InitStruct.Pin = GPIO_PIN_9;
   GPIOB_InitStruct.Pin = GPIO_PIN_6;
   GPIOC_InitStruct.Pin = GPIO_PIN_7;
 
   HAL_GPIO_Init(GPIOA, &GPIOA_InitStruct);
   HAL_GPIO_Init(GPIOB, &GPIOB_InitStruct);
   HAL_GPIO_Init(GPIOC, &GPIOC_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIOA1_InitStruct);
   
   /* Enable and set Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI4_IRQn, 0x0F, 0x00);
-  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-}
-
-void StopMotor(uint8_t board, uint8_t device){
-  StepperMotorBoardHandle_t *StepperMotorBoardHandle;
-  StepperMotorBoardHandle = BSP_GetExpansionBoardHandle(board);
-
-  StepperMotorBoardHandle->StepperMotorDriverHandle[device]->Command->PrepareHardStop(device);
-
-  // Execute the stop command
-  StepperMotorBoardHandle->Command->PerformPreparedApplicationCommand();
-}
-
-void RunMotor(uint8_t board, uint8_t device, uint32_t speed, uint32_t step)
-{
-    StepperMotorBoardHandle_t *StepperMotorBoardHandle = BSP_GetExpansionBoardHandle(board);
-
-    // Prepare and execute the move command
-    StepperMotorBoardHandle->Command->Move(board, device, L6470_DIR_FWD_ID, step);
-    while(StepperMotorBoardHandle->Command->CheckStatusRegisterFlag(board, device, BUSY_ID) == 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x0F, 0x00);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
 
@@ -171,6 +159,8 @@ int main(void)
   //Init_Input_Pin_GPIOB(GPIO_PIN_0);
   Init_Output_Pin_GPIOA(GPIO_PIN_0);
   Init_Interrupt_Pin_GPIO_9_5();
+
+  USART_Transmit(&huart2, "Initialized\n");
   
 #ifdef NUCLEO_USE_USART
   /* Transmit the initial message to the PC via UART */
@@ -194,9 +184,8 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-
-    RunMotor(0, 0, 5000, 5000);
-
+    L6470_PrepareRun(0,1,1000);
+    L6470_Run(0,1,1000);
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
  

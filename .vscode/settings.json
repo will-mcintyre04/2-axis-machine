@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.css": "tailwindcss",
+        "xnucleoihm02a1.h": "c",
+        "motor_control.h": "c"
+    }
+}
