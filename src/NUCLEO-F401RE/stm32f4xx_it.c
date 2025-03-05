@@ -37,6 +37,9 @@
 #include "example_usart.h"
 #include "main.c"
 
+uint32_t lastDebounceTime = 0; // the last time a limit switch was toggled
+uint32_t debounceDelay = 5000; // the debounce time; increase if the output flickers
+
 // extern debounce_active;
 // extern TIM_HandleTypeDef htim2;
 
@@ -114,36 +117,40 @@ void USART2_IRQHandler(void)
 
 void EXTI9_5_IRQHandler(void)
 {
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) 
+  if ((__HAL_TIM_GET_COUNTER(&htim2) - lastDebounceTime) > debounceDelay)
   {
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
-    USART_Transmit(&huart2, "PIN 6");
-    L6470_PrepareHardStop(0);
-    L6470_HardStop(0);
-  }
+    lastDebounceTime = __HAL_TIM_GET_COUNTER(&htim2);
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) 
+    {
+      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+      USART_Transmit(&huart2, "PIN 6");
+      L6470_PrepareHardStop(0);
+      L6470_HardStop(0);
+    }
 
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
-  {
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
-    USART_Transmit(&huart2, "PIN 7");
-    L6470_PrepareHardStop(0);
-    L6470_HardStop(0);
-  }
-  
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
-  {
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-    USART_Transmit(&huart2, "PIN 8");
-    L6470_PrepareHardStop(1);
-    L6470_HardStop(1);
-  }
-  
-  if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
-  {
-    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
-    USART_Transmit(&huart2, "PIN 9");
-    L6470_PrepareHardStop(1);
-    L6470_HardStop(1);
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
+    {
+      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+      USART_Transmit(&huart2, "PIN 7");
+      L6470_PrepareHardStop(0);
+      L6470_HardStop(0);
+    }
+    
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
+    {
+      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+      USART_Transmit(&huart2, "PIN 8");
+      L6470_PrepareHardStop(1);
+      L6470_HardStop(1);
+    }
+    
+    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
+    {
+      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+      USART_Transmit(&huart2, "PIN 9");
+      L6470_PrepareHardStop(1);
+      L6470_HardStop(1);
+    }
   }
 }
 

@@ -39,6 +39,7 @@
 #include "example_usart.h"
 #include "params.h"
 #include "xnucleoihm02a1.h"
+TIM_HandleTypeDef htim2;
 
 /**
   * @defgroup   MotionControl
@@ -75,9 +76,30 @@
   #error "Please define "NUCLEO_USE_USART" in "stm32fxxx_x-nucleo-ihm02a1.h"!"
 #endif
 
-#define DEBOUNCE_DELAY_MS 50 // Debounce delay in milliseconds
+//#define DEBOUNCE_DELAY_MS 50 // Debounce delay in milliseconds
 
-volatile uint8_t debounce_active = 0;
+//volatile uint8_t debounce_active = 0;
+
+void MX_TIM2_Init(void)
+{
+    __HAL_RCC_TIM2_CLK_ENABLE();
+
+    htim2.Instance = TIM2;
+    htim2.Init.Prescaler = 79; 
+    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim2.Init.Period = 10000;
+    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+    {
+        while (1);
+    }
+
+    // Enable interrupt
+    HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM2_IRQn);
+}
 
 void Init_Input_Pin_GPIOB(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
@@ -152,6 +174,7 @@ int main(void)
 {
   /* NUCLEO board initialization */
   NUCLEO_Board_Init();
+  MX_TIM2_Init();
   
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
@@ -180,6 +203,9 @@ int main(void)
 	
 	/*Initialize the motor parameters */
 	Motor_Param_Reg_Init();
+
+  //Start timer
+  HAL_TIM_Base_Start(&htim2);
   
   /* Infinite loop */
   while (1)
