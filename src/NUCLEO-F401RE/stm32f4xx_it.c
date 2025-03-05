@@ -35,7 +35,6 @@
 #include "stm32f4xx_it.h"
 #include "xnucleoihm02a1_interface.h"
 #include "example_usart.h"
-#include "main.c"
 
 uint32_t lastDebounceTime = 0; // the last time a limit switch was toggled
 uint32_t debounceDelay = 5000; // the debounce time; increase if the output flickers
