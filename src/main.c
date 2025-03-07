@@ -80,26 +80,26 @@ TIM_HandleTypeDef htim2;
 
 //volatile uint8_t debounce_active = 0;
 
-void MX_TIM2_Init(void)
-{
-    __HAL_RCC_TIM2_CLK_ENABLE();
+// void MX_TIM2_Init(void)
+// {
+//     __HAL_RCC_TIM2_CLK_ENABLE();
 
-    htim2.Instance = TIM2;
-    htim2.Init.Prescaler = 79; 
-    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim2.Init.Period = 10000;
-    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+//     htim2.Instance = TIM2;
+//     htim2.Init.Prescaler = 79; 
+//     htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+//     htim2.Init.Period = 10000;
+//     htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+//     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 
-    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-    {
-        while (1);
-    }
+//     if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+//     {
+//         while (1);
+//     }
 
-    // Enable interrupt
-    HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM2_IRQn);
-}
+//     // Enable interrupt
+//     HAL_NVIC_SetPriority(TIM2_IRQn, 0, 0);
+//     HAL_NVIC_EnableIRQ(TIM2_IRQn);
+// }
 
 void Init_Input_Pin_GPIOB(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
@@ -121,7 +121,6 @@ void Init_Input_Pin_GPIOA(uint32_t pin){
   GPIO_InitStruct.Pin = pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
@@ -193,8 +192,7 @@ int main(void)
   BSP_Init();
 
   Init_Input_Pin_GPIOA(GPIO_PIN_3); //Pin A3 is ADC_in
-  Init_Output_Pin_GPIOA(GPIO_PIN_0);
-  Init_Interrupt_Pin_GPIO_9_5();
+  Init_Interrupt_Pin_GPIO_9_5(); //Intializes intterupt pins for 4 limit switches
 
   USART_Transmit(&huart2, "Initialized\n");
   
