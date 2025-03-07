@@ -113,6 +113,18 @@ void Init_Input_Pin_GPIOB(uint32_t pin){
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
+void Init_Input_Pin_GPIOA(uint32_t pin){
+  GPIO_InitTypeDef GPIO_InitStruct;
+
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
 void Init_Output_Pin_GPIOA(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -175,11 +187,12 @@ int main(void)
   /* NUCLEO board initialization */
   NUCLEO_Board_Init();
   MX_TIM2_Init();
+  MX_ADC1_Init();
   
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  //Init_Input_Pin_GPIOB(GPIO_PIN_0);
+  Init_Input_Pin_GPIOA(GPIO_PIN_3); //Pin A3 is ADC_in
   Init_Output_Pin_GPIOA(GPIO_PIN_0);
   Init_Interrupt_Pin_GPIO_9_5();
 
@@ -212,6 +225,10 @@ int main(void)
   {
     L6470_PrepareRun(0,1,1000);
     L6470_Run(0,1,1000);
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+    USART_Transmit(&huart2,  HAL_ADC_GetValue(&hadc1)); // returns potentionmeter reading as 32-bit int
+
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
  
