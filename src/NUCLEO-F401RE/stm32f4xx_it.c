@@ -116,41 +116,40 @@ void USART2_IRQHandler(void)
 
 void EXTI9_5_IRQHandler(void)
 {
-  if ((__HAL_TIM_GET_COUNTER(&htim2) - lastDebounceTime) > debounceDelay)
-  {
-    lastDebounceTime = __HAL_TIM_GET_COUNTER(&htim2);
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) 
-    {
-      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
-      USART_Transmit(&huart2, "PIN 6");
-      L6470_PrepareHardStop(0);
-      L6470_HardStop(0);
+    volatile uint32_t i = 0;
+    const int delay = 50000;
+
+    while (i < delay) {
+        i++;
     }
 
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET)
-    {
-      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
-      USART_Transmit(&huart2, "PIN 7");
-      L6470_PrepareHardStop(0);
-      L6470_HardStop(0);
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+        USART_Transmit(&huart2, "PIN 6");
+        L6470_PrepareHardStop(0);
+        L6470_HardStop(0);
     }
-    
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET)
-    {
-      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-      USART_Transmit(&huart2, "PIN 8");
-      L6470_PrepareHardStop(1);
-      L6470_HardStop(1);
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET) {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+        USART_Transmit(&huart2, "PIN 7");
+        L6470_PrepareHardStop(0);
+        L6470_HardStop(0);
     }
-    
-    if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET)
-    {
-      __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
-      USART_Transmit(&huart2, "PIN 9");
-      L6470_PrepareHardStop(1);
-      L6470_HardStop(1);
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET) {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+        USART_Transmit(&huart2, "PIN 8");
+        L6470_PrepareHardStop(1);
+        L6470_HardStop(1);
     }
-  }
+
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET) {
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+        USART_Transmit(&huart2, "PIN 9");
+        L6470_PrepareHardStop(1);
+        L6470_HardStop(1);
+    }
 }
 
 /**

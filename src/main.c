@@ -186,7 +186,7 @@ int main(void)
 {
   /* NUCLEO board initialization */
   NUCLEO_Board_Init();
-  MX_TIM2_Init();
+  //MX_TIM2_Init();
   MX_ADC1_Init();
   
   /* X-NUCLEO-IHM02A1 initialization */
@@ -218,16 +218,20 @@ int main(void)
 	Motor_Param_Reg_Init();
 
   //Start timer
-  HAL_TIM_Base_Start(&htim2);
+  //HAL_TIM_Base_Start(&htim2);
   
   /* Infinite loop */
+
+  L6470_PrepareRun(0,1,1000);
+  L6470_PrepareRun(1,1,1000);
+  L6470_Run(0,1,1000);
+  L6470_Run(1,1,1000);
+  USART_Transmit(&huart2, "Motor starting\n\r");
   while (1)
   {
-    L6470_PrepareRun(0,1,1000);
-    L6470_Run(0,1,1000);
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    USART_Transmit(&huart2,  HAL_ADC_GetValue(&hadc1)); // returns potentionmeter reading as 32-bit int
+    //USART_Transmit(&huart2,  HAL_ADC_GetValue(&hadc1)); // returns potentionmeter reading as 32-bit int
 
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
