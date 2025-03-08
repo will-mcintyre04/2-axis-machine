@@ -170,7 +170,7 @@ void Init_Interrupt_Pin_GPIO_9_5(){
   HAL_GPIO_Init(GPIOA, &GPIOA1_InitStruct);
   
   /* Enable and set Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x0F, 0x00);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x00, 0x00);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
@@ -224,8 +224,12 @@ int main(void)
 
   L6470_PrepareRun(0,1,1000);
   L6470_PrepareRun(1,1,1000);
-  L6470_Run(0,1,1000);
-  L6470_Run(1,1,1000);
+  if((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) || HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) == GPIO_PIN_RESET){
+    L6470_Run(0,1,1000);
+  }
+  if ((HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) || HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9)) == GPIO_PIN_RESET){
+    L6470_Run(1,1,1000);
+  }
   USART_Transmit(&huart2, "Motor starting\n\r");
   while (1)
   {

@@ -116,40 +116,55 @@ void USART2_IRQHandler(void)
 
 void EXTI9_5_IRQHandler(void)
 {
-    volatile uint32_t i = 0;
-    const int delay = 50000;
-
-    while (i < delay) {
-        i++;
+  // Debouncing
+  const int delay = 800000;
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) {
+    for (volatile int i=0; i < delay; i++) {
     }
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
+      if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_RESET){
+        return;
+      }
+      USART_Transmit(&huart2, "PIN 6");
+      L6470_PrepareHardStop(0);
+      L6470_HardStop(0);
+  }
 
-    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) {
-        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
-        USART_Transmit(&huart2, "PIN 6");
-        L6470_PrepareHardStop(0);
-        L6470_HardStop(0);
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET) {
+    for (volatile int i=0; i < delay; i++) {
     }
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
+      if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
+        return;
+      }
+      USART_Transmit(&huart2, "PIN 7");
+      L6470_PrepareHardStop(0);
+      L6470_HardStop(0);
+  }
 
-    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET) {
-        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
-        USART_Transmit(&huart2, "PIN 7");
-        L6470_PrepareHardStop(0);
-        L6470_HardStop(0);
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET) {
+    for (volatile int i=0; i < delay; i++) {
     }
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
+      if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET){
+        return;
+      }
+      USART_Transmit(&huart2, "PIN 8");
+      L6470_PrepareHardStop(1);
+      L6470_HardStop(1);
+  }
 
-    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET) {
-        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_8);
-        USART_Transmit(&huart2, "PIN 8");
-        L6470_PrepareHardStop(1);
-        L6470_HardStop(1);
+  if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET) {
+    for (volatile int i=0; i < delay; i++) {
     }
-
-    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_9) != RESET) {
-        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
-        USART_Transmit(&huart2, "PIN 9");
-        L6470_PrepareHardStop(1);
-        L6470_HardStop(1);
-    }
+    __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
+      if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
+        return;
+      }
+      USART_Transmit(&huart2, "PIN 9");
+      L6470_PrepareHardStop(1);
+      L6470_HardStop(1);
+  }
 }
 
 /**
