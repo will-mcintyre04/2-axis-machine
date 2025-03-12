@@ -397,7 +397,7 @@ void MX_ADC1_Init(void)
   ADC_ChannelConfTypeDef sConfig;
 
   /* GPIO Ports Clock Enable */
-  __GPIOB_CLK_ENABLE();
+  __GPIOA_CLK_ENABLE();
 
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
@@ -405,8 +405,8 @@ void MX_ADC1_Init(void)
    hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;  // Adjust as needed
    hadc1.Init.Resolution = ADC_RESOLUTION_12B;           // 12-bit resolution
    hadc1.Init.ScanConvMode = DISABLE;                    // Single channel
-   hadc1.Init.ContinuousConvMode = ENABLE;               // Continuous conversion
-   hadc1.Init.DiscontinuousConvMode = DISABLE;
+   hadc1.Init.ContinuousConvMode = DISABLE;               
+   hadc1.Init.DiscontinuousConvMode = ENABLE;            // Discontinuous conversion
    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger
    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;           // Right aligned data
    hadc1.Init.NbrOfConversion = 1;                       // One conversion
@@ -420,6 +420,16 @@ void MX_ADC1_Init(void)
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+
+  if (HAL_ADC_Init(&hadc1) != HAL_OK) {
+    // Initialization Error
+    USART_Transmit(&huart2,  ("init error"));
+  }
+
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
+    // Channel Configuration Error
+    USART_Transmit(&huart2,  ("channel error"));
+  }
 
 }
 

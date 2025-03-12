@@ -121,7 +121,7 @@ void Init_Input_Pin_GPIOA(uint32_t pin){
   GPIO_InitStruct.Pin = pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+  //GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
@@ -182,8 +182,11 @@ void Init_Interrupt_Pin_GPIO_9_5(){
 /**
   * @brief The FW main module
   */
+
 int main(void)
 {
+  uint16_t raw;
+  char msg[10];
   /* NUCLEO board initialization */
   NUCLEO_Board_Init();
   //MX_TIM2_Init();
@@ -231,11 +234,23 @@ int main(void)
     L6470_Run(1,1,1000);
   }
   USART_Transmit(&huart2, "Motor starting\n\r");
+  HAL_ADC_Start(&hadc1); //enables continous conversion
+
+  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET); //TEST
+
   while (1)
   {
+    
+
+    //Get ADC value
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    //USART_Transmit(&huart2,  HAL_ADC_GetValue(&hadc1)); // returns potentionmeter reading as 32-bit int
+    raw = HAL_ADC_GetValue(&hadc1);
+
+    // Convert to string and print
+    sprintf(msg, "%hu\r\n", raw);
+    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+
 
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
