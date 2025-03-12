@@ -104,11 +104,11 @@ void MX_TIM2_Init(void)
 void Init_Input_Pin_GPIOB(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
 
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   GPIO_InitStruct.Pin = pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
@@ -121,7 +121,7 @@ void Init_Input_Pin_GPIOA(uint32_t pin){
   GPIO_InitStruct.Pin = pin;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  //GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
@@ -186,7 +186,7 @@ void Init_Interrupt_Pin_GPIO_9_5(){
 int main(void)
 {
   uint16_t raw;
-  char msg[10];
+  char msg[20];
   /* NUCLEO board initialization */
   NUCLEO_Board_Init();
   //MX_TIM2_Init();
@@ -195,8 +195,10 @@ int main(void)
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Init_Input_Pin_GPIOA(GPIO_PIN_3); //Pin A3 is ADC_in
-  Init_Output_Pin_GPIOA(GPIO_PIN_0);
+  Init_Input_Pin_GPIOB(GPIO_PIN_0); //PB0 is ADC_in
+  Init_Input_Pin_GPIOA(GPIO_PIN_0);
+  Init_Input_Pin_GPIOA(GPIO_PIN_1);
+  Init_Input_Pin_GPIOA(GPIO_PIN_4);
   Init_Interrupt_Pin_GPIO_9_5();
 
   USART_Transmit(&huart2, "Initialized\n");
@@ -234,9 +236,7 @@ int main(void)
     L6470_Run(1,1,1000);
   }
   USART_Transmit(&huart2, "Motor starting\n\r");
-  HAL_ADC_Start(&hadc1); //enables continous conversion
-
-  //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET); //TEST
+  //HAL_ADC_Start(&hadc1); //enables continous conversion
 
   while (1)
   {
@@ -246,6 +246,7 @@ int main(void)
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
     raw = HAL_ADC_GetValue(&hadc1);
+    HAL_ADC_Stop(&hadc1);
 
     // Convert to string and print
     sprintf(msg, "%hu\r\n", raw);
