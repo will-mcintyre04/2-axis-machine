@@ -195,10 +195,7 @@ int main(void)
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Init_Input_Pin_GPIOB(GPIO_PIN_0); //PB0 is ADC_in
-  Init_Input_Pin_GPIOA(GPIO_PIN_0);
-  Init_Input_Pin_GPIOA(GPIO_PIN_1);
-  Init_Input_Pin_GPIOA(GPIO_PIN_4);
+  Init_Input_Pin_GPIOA(GPIO_PIN_4); //PA4 is ADC_in
   Init_Interrupt_Pin_GPIO_9_5();
 
   USART_Transmit(&huart2, "Initialized\n");
@@ -240,17 +237,22 @@ int main(void)
 
   while (1)
   {
-    
+    uint32_t avg = 0;
 
     //Get ADC value
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    raw = HAL_ADC_GetValue(&hadc1);
-    HAL_ADC_Stop(&hadc1);
+    for (int i = 0; i < 100; i++) {
+      HAL_ADC_Start(&hadc1);
+      HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+      raw = HAL_ADC_GetValue(&hadc1);
+      HAL_ADC_Stop(&hadc1);
+      avg += raw;
+    }
 
     // Convert to string and print
-    sprintf(msg, "%hu\r\n", raw);
+    sprintf(msg, "%hu\r\n", avg/100);
     HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+    HAL_Delay(100000000);
+    
 
 
     /* Check if any Application Command for L6470 has been entered by USART */
