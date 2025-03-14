@@ -402,13 +402,13 @@ void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
    hadc1.Instance = ADC1;
-   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;  // Adjust as needed
+   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;  // Derived from system clock and divided by 2
    hadc1.Init.Resolution = ADC_RESOLUTION_12B;           // 12-bit resolution
-   hadc1.Init.ScanConvMode = DISABLE;                    // Single channel
-   hadc1.Init.ContinuousConvMode = DISABLE;               
-   hadc1.Init.DiscontinuousConvMode = DISABLE;            // Discontinuous conversion
-   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger
-   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;           // Right aligned data
+   hadc1.Init.ScanConvMode = DISABLE;                    // Single channel, we only have one ADC channel we want in use
+   hadc1.Init.ContinuousConvMode = DISABLE;              // ADC stops after one conversion (single shot)
+   hadc1.Init.DiscontinuousConvMode = DISABLE;           // Discontinuous conversion, disabled since single channel
+   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger using HAL_ADC_Start
+   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;           // Right aligned data, we want lower bits to hold the ADC result
    hadc1.Init.NbrOfConversion = 1;                       // One conversion
    hadc1.Init.DMAContinuousRequests = DISABLE;
    hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
@@ -417,7 +417,7 @@ void MX_ADC1_Init(void)
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
   sConfig.Channel = ADC_CHANNEL_4;
-  sConfig.Rank = 1;
+  sConfig.Rank = 1; //
   sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 }
