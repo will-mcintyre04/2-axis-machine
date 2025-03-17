@@ -237,21 +237,27 @@ int main(void)
 
   while (1)
   {
-    uint32_t avg = 0;
+    uint32_t sum = 0;
+    uint16_t raw;
+    char msg[50];
 
-    //Get ADC value
+    // Get ADC value
     for (int i = 0; i < 100; i++) {
       HAL_ADC_Start(&hadc1);
       HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
       raw = HAL_ADC_GetValue(&hadc1);
       HAL_ADC_Stop(&hadc1);
-      avg += raw;
+      sum += raw;
     }
 
+    // Calculate average with floating point
+    uint32_t avg_int = sum / 100;
+    uint32_t avg_frac = ((sum * 100) / 100) % 100;  // Get 2 decimal places
+
     // Convert to string and print
-    sprintf(msg, "%hu\r\n", avg/100);
-    HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
-    HAL_Delay(100000000);
+    sprintf(msg, "ADC Avg: %lu.%02lu\r\n", avg_int, avg_frac);
+    USART_Transmit(&huart2, msg);
+    HAL_Delay(1000);
     
 
 
