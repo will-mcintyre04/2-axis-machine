@@ -402,7 +402,7 @@ void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
    hadc1.Instance = ADC1;
-   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;  // Derived from system clock and divided by 4
+   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;  // Derived from system clock and divided by 4 (to ensure it is within max sampling frequency)
    hadc1.Init.Resolution = ADC_RESOLUTION_8B;            //  8-bit resolution
    hadc1.Init.ScanConvMode = DISABLE;                    // Single channel, we only have one ADC channel we want in use
    hadc1.Init.ContinuousConvMode = DISABLE;              // ADC stops after one conversion (single shot)
