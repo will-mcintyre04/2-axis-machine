@@ -394,7 +394,7 @@ void MX_USART2_Init(void)
 */
 void MX_ADC1_Init(void)
 {
-  ADC_ChannelConfTypeDef sConfig;
+  ADC_ChannelConfTypeDef adcChannel1, adcChannel2;
 
   /* GPIO Ports Clock Enable */
   __GPIOA_CLK_ENABLE();
@@ -404,7 +404,7 @@ void MX_ADC1_Init(void)
    hadc1.Instance = ADC1;
    hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;  // Derived from system clock and divided by 4 (to ensure it is within max sampling frequency)
    hadc1.Init.Resolution = ADC_RESOLUTION_8B;            //  8-bit resolution
-   hadc1.Init.ScanConvMode = DISABLE;                    // Single channel, we only have one ADC channel we want in use
+   hadc1.Init.ScanConvMode = ENABLE;                    // Single channel, we only have one ADC channel we want in use
    hadc1.Init.ContinuousConvMode = DISABLE;              // ADC stops after one conversion (single shot)
    hadc1.Init.DiscontinuousConvMode = DISABLE;           // Discontinuous conversion, disabled since single channel
    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger using HAL_ADC_Start
@@ -416,10 +416,15 @@ void MX_ADC1_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_4;
-  sConfig.Rank = 1; //
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES; // Set the sample time to the minimum
-  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+  adcChannel1.Channel = ADC_CHANNEL_4;
+  adcChannel1.Rank = 1; //
+  adcChannel1.SamplingTime = ADC_SAMPLETIME_3CYCLES; // Set the sample time to the minimum
+  HAL_ADC_ConfigChannel(&hadc1, &adcChannel1);
+
+  adcChannel1.Channel = ADC_CHANNEL_8;
+  adcChannel1.Rank = 1; //
+  adcChannel1.SamplingTime = ADC_SAMPLETIME_3CYCLES; // Set the sample time to the minimum
+  HAL_ADC_ConfigChannel(&hadc1, &adcChannel1);
 }
 
 /**
