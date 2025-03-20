@@ -104,11 +104,11 @@ void MX_TIM2_Init(void)
 void Init_Input_Pin_GPIOB(uint32_t pin){
   GPIO_InitTypeDef GPIO_InitStruct;
 
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   GPIO_InitStruct.Pin = pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
@@ -170,7 +170,7 @@ void Init_Interrupt_Pin_GPIO_9_5(){
   HAL_GPIO_Init(GPIOA, &GPIOA1_InitStruct);
   
   /* Enable and set Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x0F, 0x00);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0x00, 0x00);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
@@ -182,18 +182,20 @@ void Init_Interrupt_Pin_GPIO_9_5(){
 /**
   * @brief The FW main module
   */
+
 int main(void)
 {
+  uint16_t raw;
+  char msg[20];
   /* NUCLEO board initialization */
   NUCLEO_Board_Init();
-  MX_TIM2_Init();
+  //MX_TIM2_Init();
   MX_ADC1_Init();
   
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Init_Input_Pin_GPIOA(GPIO_PIN_3); //Pin A3 is ADC_in
-  Init_Output_Pin_GPIOA(GPIO_PIN_0);
+  Init_Input_Pin_GPIOA(GPIO_PIN_4); //PA4 is ADC_in
   Init_Interrupt_Pin_GPIO_9_5();
 
   USART_Transmit(&huart2, "Initialized\n");
@@ -218,16 +220,46 @@ int main(void)
 	Motor_Param_Reg_Init();
 
   //Start timer
-  HAL_TIM_Base_Start(&htim2);
+  //HAL_TIM_Base_Start(&htim2);
   
   /* Infinite loop */
+
+  L6470_PrepareRun(0,1,1000);
+  L6470_PrepareRun(1,1,1000);
+  if((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) || HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) == GPIO_PIN_RESET){
+    L6470_Run(0,1,1000);
+  }
+  if ((HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) || HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9)) == GPIO_PIN_RESET){
+    L6470_Run(1,1,1000);
+  }
+  USART_Transmit(&huart2, "Motor starting\n\r");
+  //HAL_ADC_Start(&hadc1); //enables continous conversion
+
   while (1)
   {
-    L6470_PrepareRun(0,1,1000);
-    L6470_Run(0,1,1000);
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    USART_Transmit(&huart2,  HAL_ADC_GetValue(&hadc1)); // returns potentionmeter reading as 32-bit int
+    uint32_t sum = 0;
+    uint16_t raw;
+    char msg[50];
+
+    // Get ADC value
+    for (int i = 0; i < 100; i++) {
+      HAL_ADC_Start(&hadc1);
+      HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+      raw = HAL_ADC_GetValue(&hadc1);
+      HAL_ADC_Stop(&hadc1);
+      sum += raw;
+    }
+
+    // Calculate average with floating point
+    uint32_t avg_int = sum / 100;
+    uint32_t avg_frac = ((sum * 100) / 100) % 100;  // Get 2 decimal places
+
+    // Convert to string and print
+    sprintf(msg, "ADC Avg: %lu.%02lu\r\n", avg_int, avg_frac);
+    USART_Transmit(&huart2, msg);
+    HAL_Delay(1000);
+    
+
 
     /* Check if any Application Command for L6470 has been entered by USART */
     //USART_CheckAppCmd();
