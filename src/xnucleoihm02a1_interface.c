@@ -409,7 +409,7 @@ void MX_ADC1_Init(void)
    hadc1.Init.DiscontinuousConvMode = DISABLE;           // Discontinuous conversion, disabled since single channel
    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger using HAL_ADC_Start
    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;           // Right aligned data, we want lower bits to hold the ADC result
-   hadc1.Init.NbrOfConversion = 1;                       // One conversion
+   hadc1.Init.NbrOfConversion = 2;                       // two conversions
    hadc1.Init.DMAContinuousRequests = DISABLE;           // The ADC cannot transfer data directly to memory without CPU intervention.
    hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;        // Single channel, so EOC (end of conversion) flag is set after each conversion.
    HAL_ADC_Init(&hadc1);
@@ -422,7 +422,7 @@ void MX_ADC1_Init(void)
   HAL_ADC_ConfigChannel(&hadc1, &adcChannel1);
 
   adcChannel1.Channel = ADC_CHANNEL_8;
-  adcChannel1.Rank = 1; //
+  adcChannel1.Rank = 2; //
   adcChannel1.SamplingTime = ADC_SAMPLETIME_3CYCLES; // Set the sample time to the minimum
   HAL_ADC_ConfigChannel(&hadc1, &adcChannel1);
 }
