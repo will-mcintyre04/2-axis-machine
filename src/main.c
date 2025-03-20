@@ -237,25 +237,33 @@ int main(void)
 
   while (1)
   {
-    uint32_t sum = 0;
-    uint16_t raw;
+    uint32_t sum_x = 0;
+    uint32_t sum_y = 0;
+    uint16_t raw_x;
+    uint16_t raw_y;
     char msg[50];
 
     // Get ADC value
     for (int i = 0; i < 100; i++) {
       HAL_ADC_Start(&hadc1);
       HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-      raw = HAL_ADC_GetValue(&hadc1);
+      raw_x = HAL_ADC_GetValue(&hadc1);
+      raw_y = HAL_ADC_GetValue(&hadc1);
       HAL_ADC_Stop(&hadc1);
-      sum += raw;
+      sum_x += raw_x;
+      sum_y += raw_y;
     }
 
     // Calculate average with floating point
-    uint32_t avg_int = sum / 100;
-    uint32_t avg_frac = ((sum * 100) / 100) % 100;  // Get 2 decimal places
+    uint32_t avg_int_x = sum_x / 100;
+    uint32_t avg_int_y = sum_y / 100;
+    uint32_t avg_frac_x = ((sum_x * 100) / 100) % 100;  // Get 2 decimal places
+    uint32_t avg_frac_y = ((sum_y * 100) / 100) % 100;  // Get 2 decimal places
 
     // Convert to string and print
-    sprintf(msg, "ADC Avg: %lu.%02lu\r\n", avg_int, avg_frac);
+    sprintf(msg, "ADC Avg X: %lu.%02lu\r\n", avg_int_x, avg_frac_x);
+    USART_Transmit(&huart2, msg);
+    sprintf(msg, "ADC Avg Y: %lu.%02lu\r\n", avg_int_y, avg_frac_y);
     USART_Transmit(&huart2, msg);
     HAL_Delay(1000);
     
