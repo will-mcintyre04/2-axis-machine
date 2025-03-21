@@ -91,6 +91,18 @@ uint8_t motor_conv(uint8_t adc_val){
   }
 }
 
+uint8_t motor_conv(uint8_t adc_val){
+  if(adc_val >= 147){
+    return 1000*(adc_val - 147)/108;
+  }
+  else if(adc_val <= 106){
+    return 1000*(adc_val - 106)/106;
+  }
+  else{
+    return 0;
+  }
+}
+
 void MX_TIM2_Init(void)
 {
     __HAL_RCC_TIM2_CLK_ENABLE();
@@ -206,8 +218,7 @@ int main(void)
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Init_Input_Pin_GPIOA(GPIO_PIN_1); //PA1 is ADC_in
-  Init_Input_Pin_GPIOB(GPIO_PIN_0); //PB0 is our second ADC input
+  Init_Input_Pin_GPIOA(GPIO_PIN_4); //PA4 is ADC_in
   Init_Interrupt_Pin_GPIO_9_5();
 
   USART_Transmit(&huart2, "Initialized\n");
@@ -236,12 +247,13 @@ int main(void)
   
   /* Infinite loop */
 
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) ==GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
-    L6470_PrepareRun(0,1,1000);
+  L6470_PrepareRun(0,1,1000);
+  L6470_PrepareRun(1,1,1000);
+  
+  if((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) || HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) == GPIO_PIN_RESET){
     L6470_Run(0,1,1000);
   }
-  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
-    L6470_PrepareRun(1,1,1000);
+  if ((HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) || HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9)) == GPIO_PIN_RESET){
     L6470_Run(1,1,1000);
   }
   USART_Transmit(&huart2, "Motor starting\n\r");
@@ -249,27 +261,30 @@ int main(void)
 
   while (1)
   {
-    uint16_t pot_1_val;
-    uint16_t pot_2_val;
+    uint32_t sum = 0;
+    uint16_t raw;
     char msg[50];
 
-    // Start ADC
-    HAL_ADC_Start(&hadc1);
+    // Get ADC value sum for average
+    for (int i = 0; i < 100; i++) {
+      HAL_ADC_Start(&hadc1);
+      HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+      raw = HAL_ADC_GetValue(&hadc1);
+      HAL_ADC_Stop(&hadc1);
+      sum += raw;
+    }
 
-    // Get ADC values
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    pot_1_val = HAL_ADC_GetValue(&hadc1);
-
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    pot_2_val = HAL_ADC_GetValue(&hadc1);
+    // Calculate average with floating point
+    uint32_t avg_int = sum / 100;
+    uint32_t avg_frac = ((sum * 100) / 100) % 100;  // Get 2 decimal places
     
-    HAL_ADC_Stop(&hadc1);
+    // motor_conv(avg_frac); convert to motor speed (later)
 
-
-    // Convert to string and print
-    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\n", pot_1_val, pot_2_val);
+    // Convert to string and print to view ADC value
+    sprintf(msg, "ADC Avg: %lu.%02lu\r\n", avg_int, avg_frac);
     USART_Transmit(&huart2, msg);
     HAL_Delay(1000);
+    
 
 
     /* Check if any Application Command for L6470 has been entered by USART */
