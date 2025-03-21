@@ -195,7 +195,7 @@ int main(void)
   /* X-NUCLEO-IHM02A1 initialization */
   BSP_Init();
 
-  Init_Input_Pin_GPIOA(GPIO_PIN_4); //PA4 is ADC_in
+  Init_Input_Pin_GPIOA(GPIO_PIN_1); //PA1 is ADC_in
   Init_Input_Pin_GPIOB(GPIO_PIN_0); //PB0 is our second ADC input
   Init_Interrupt_Pin_GPIO_9_5();
 
@@ -225,12 +225,12 @@ int main(void)
   
   /* Infinite loop */
 
-  L6470_PrepareRun(0,1,1000);
-  L6470_PrepareRun(1,1,1000);
-  if((HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) || HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7)) == GPIO_PIN_RESET){
+  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) ==GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
+    L6470_PrepareRun(0,1,1000);
     L6470_Run(0,1,1000);
   }
-  if ((HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) || HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9)) == GPIO_PIN_RESET){
+  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
+    L6470_PrepareRun(1,1,1000);
     L6470_Run(1,1,1000);
   }
   USART_Transmit(&huart2, "Motor starting\n\r");
