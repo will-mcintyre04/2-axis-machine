@@ -236,22 +236,23 @@ int main(void)
   
   /* Infinite loop */
 
-  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) ==GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
-    L6470_PrepareRun(0,1,1000);
-    L6470_Run(0,1,1000);
-  }
-  if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
-    L6470_PrepareRun(1,1,1000);
-    L6470_Run(1,1,1000);
-  }
-  USART_Transmit(&huart2, "Motor starting\n\r");
+  // if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) ==GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
+  //   L6470_PrepareRun(0,1,1000);
+  //   L6470_Run(0,1,1000);
+  // }
+  // if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
+  //   L6470_PrepareRun(1,1,1000);
+  //   L6470_Run(1,1,1000);
+  // }
+  // USART_Transmit(&huart2, "Motor starting\n\r");
   //HAL_ADC_Start(&hadc1); //enables continous conversion
 
   while (1)
   {
     uint16_t pot_1_val;
     uint16_t pot_2_val;
-    char msg[50];
+    uint8_t motor_1_speed, motor_2_speed;
+    char msg[100];
 
     // Start ADC
     HAL_ADC_Start(&hadc1);
@@ -259,15 +260,17 @@ int main(void)
     // Get ADC values
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
     pot_1_val = HAL_ADC_GetValue(&hadc1);
+    motor_1_speed = motor_conv(pot_1_val);
 
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
     pot_2_val = HAL_ADC_GetValue(&hadc1);
+    motor_2_speed = motor_conv(pot_2_val);
     
     HAL_ADC_Stop(&hadc1);
 
 
     // Convert to string and print
-    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\n", pot_1_val, pot_2_val);
+    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\nMotor Speed 1: %lu Motor Speed 2: %lu\r\n", pot_1_val, pot_2_val, motor_1_speed, motor_2_speed);
     USART_Transmit(&huart2, msg);
     HAL_Delay(1000);
 
