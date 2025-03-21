@@ -79,6 +79,17 @@ TIM_HandleTypeDef htim2;
 //#define DEBOUNCE_DELAY_MS 50 // Debounce delay in milliseconds
 
 //volatile uint8_t debounce_active = 0;
+uint8_t motor_conv(uint8_t adc_val){
+  if(adc_val >= 147){
+    return 1000*(adc_val - 147)/108;
+  }
+  else if(adc_val <= 106){
+    return 1000*(adc_val - 106)/106;
+  }
+  else{
+    return 0;
+  }
+}
 
 void MX_TIM2_Init(void)
 {
