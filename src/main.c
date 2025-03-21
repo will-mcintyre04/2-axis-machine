@@ -196,6 +196,7 @@ int main(void)
   BSP_Init();
 
   Init_Input_Pin_GPIOA(GPIO_PIN_4); //PA4 is ADC_in
+  Init_Input_Pin_GPIOB(GPIO_PIN_0); //PB0 is our second ADC input
   Init_Interrupt_Pin_GPIO_9_5();
 
   USART_Transmit(&huart2, "Initialized\n");
@@ -237,36 +238,27 @@ int main(void)
 
   while (1)
   {
-    uint32_t sum_x = 0;
-    uint32_t sum_y = 0;
-    uint16_t raw_x;
-    uint16_t raw_y;
+    uint16_t pot_1_val;
+    uint16_t pot_2_val;
     char msg[50];
 
-    // Get ADC value
-    for (int i = 0; i < 100; i++) {
-      HAL_ADC_Start(&hadc1);
-      HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-      raw_x = HAL_ADC_GetValue(&hadc1);
-      raw_y = HAL_ADC_GetValue(&hadc1);
-      HAL_ADC_Stop(&hadc1);
-      sum_x += raw_x;
-      sum_y += raw_y;
-    }
+    // Start ADC
+    HAL_ADC_Start(&hadc1);
 
-    // Calculate average with floating point
-    uint32_t avg_int_x = sum_x / 100;
-    uint32_t avg_int_y = sum_y / 100;
-    uint32_t avg_frac_x = ((sum_x * 100) / 100) % 100;  // Get 2 decimal places
-    uint32_t avg_frac_y = ((sum_y * 100) / 100) % 100;  // Get 2 decimal places
+    // Get ADC values
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+    pot_1_val = HAL_ADC_GetValue(&hadc1);
+
+    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+    pot_2_val = HAL_ADC_GetValue(&hadc1);
+
+    HAL_ADC_Stop(&hadc1);
+
 
     // Convert to string and print
-    sprintf(msg, "ADC Avg X: %lu.%02lu\r\n", avg_int_x, avg_frac_x);
-    USART_Transmit(&huart2, msg);
-    sprintf(msg, "ADC Avg Y: %lu.%02lu\r\n", avg_int_y, avg_frac_y);
+    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\n", pot_1_val, pot_2_val);
     USART_Transmit(&huart2, msg);
     HAL_Delay(1000);
-    
 
 
     /* Check if any Application Command for L6470 has been entered by USART */

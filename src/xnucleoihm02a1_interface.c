@@ -404,27 +404,27 @@ void MX_ADC1_Init(void)
    hadc1.Instance = ADC1;
    hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;  // Derived from system clock and divided by 4 (to ensure it is within max sampling frequency)
    hadc1.Init.Resolution = ADC_RESOLUTION_8B;            //  8-bit resolution
-   hadc1.Init.ScanConvMode = ENABLE;                    // Single channel, we only have one ADC channel we want in use
-   hadc1.Init.ContinuousConvMode = DISABLE;              // ADC stops after one conversion (single shot)
+   hadc1.Init.ScanConvMode = ENABLE;                    // Multi channel
+   hadc1.Init.ContinuousConvMode = DISABLE;              // No continuous multi-channel repeat
    hadc1.Init.DiscontinuousConvMode = DISABLE;           // Discontinuous conversion, disabled since single channel
    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger using HAL_ADC_Start
    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;           // Right aligned data, we want lower bits to hold the ADC result
    hadc1.Init.NbrOfConversion = 2;                       // two conversions
    hadc1.Init.DMAContinuousRequests = DISABLE;           // The ADC cannot transfer data directly to memory without CPU intervention.
-   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;        // Single channel, so EOC (end of conversion) flag is set after each conversion.
+   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;        // Multi channel, so EOC (end of conversion) flag is set after end of sequence.
    HAL_ADC_Init(&hadc1);
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
   adcChannel1.Channel = ADC_CHANNEL_4;
   adcChannel1.Rank = 1; //
-  adcChannel1.SamplingTime = ADC_SAMPLETIME_3CYCLES; // Set the sample time to the minimum
+  adcChannel1.SamplingTime = ADC_SAMPLETIME_480CYCLES; // Set the sample time to the minimum
   HAL_ADC_ConfigChannel(&hadc1, &adcChannel1);
 
-  adcChannel1.Channel = ADC_CHANNEL_8;
-  adcChannel1.Rank = 2; //
-  adcChannel1.SamplingTime = ADC_SAMPLETIME_3CYCLES; // Set the sample time to the minimum
-  HAL_ADC_ConfigChannel(&hadc1, &adcChannel1);
+  adcChannel2.Channel = ADC_CHANNEL_8;
+  adcChannel2.Rank = 2; //
+  adcChannel2.SamplingTime = ADC_SAMPLETIME_480CYCLES; // Set the sample time to the minimum
+  HAL_ADC_ConfigChannel(&hadc1, &adcChannel2);
 }
 
 /**
