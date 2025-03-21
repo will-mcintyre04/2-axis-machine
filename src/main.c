@@ -78,17 +78,28 @@ TIM_HandleTypeDef htim2;
 
 //#define DEBOUNCE_DELAY_MS 50 // Debounce delay in milliseconds
 
-//volatile uint8_t debounce_active = 0;
-uint8_t motor_conv(uint8_t adc_val){
+typedef struct{
+  eL6470_DirId_t dir;
+  uint8_t speed;
+} motor_char;
+
+motor_char motor_conv(uint8_t adc_val){
+  motor_char motor;
+  
   if(adc_val >= 147){
-    return 1000*(adc_val - 147)/108;
+    motor.dir = 1;
+    motor.speed = 1000*(adc_val - 147)/108;
   }
-  else if(adc_val <= 106){
-    return 1000*(adc_val - 106)/106;
+  else if(adc_val <= 108){
+    motor.dir = 0;
+    motor.speed = 1000*(adc_val)/108;
   }
   else{
-    return 0;
+    motor.dir = 1;
+    motor.speed = 0;
   }
+
+  return motor;
 }
 
 void MX_TIM2_Init(void)
@@ -241,8 +252,8 @@ int main(void)
   //   L6470_Run(0,1,1000);
   // }
   // if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
-  //   L6470_PrepareRun(1,1,1000);
-  //   L6470_Run(1,1,1000);
+    L6470_PrepareRun(1,1,1000);
+    L6470_Run(1,1,1000);
   // }
   // USART_Transmit(&huart2, "Motor starting\n\r");
   //HAL_ADC_Start(&hadc1); //enables continous conversion
@@ -251,7 +262,7 @@ int main(void)
   {
     uint16_t pot_1_val;
     uint16_t pot_2_val;
-    uint8_t motor_1_speed, motor_2_speed;
+    motor_char motor_1_values, motor_2_values;
     char msg[100];
 
     // Start ADC
@@ -260,18 +271,20 @@ int main(void)
     // Get ADC values
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
     pot_1_val = HAL_ADC_GetValue(&hadc1);
-    motor_1_speed = motor_conv(pot_1_val);
+    motor_1_values = motor_conv(pot_1_val);
 
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
     pot_2_val = HAL_ADC_GetValue(&hadc1);
-    motor_2_speed = motor_conv(pot_2_val);
+    motor_2_values = motor_conv(pot_2_val);
     
     HAL_ADC_Stop(&hadc1);
 
 
     // Convert to string and print
-    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\nMotor Speed 1: %lu Motor Speed 2: %lu\r\n", pot_1_val, pot_2_val, motor_1_speed, motor_2_speed);
+    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\nMotor Speed 1: %lu Motor Speed 2: %lu\r\n", pot_1_val, pot_2_val, motor_1_values.speed, motor_2_values.speed);
     USART_Transmit(&huart2, msg);
+    L6470_PrepareRun(1,motor_1_values.dir,motor_1_values.speed);
+    L6470_Run(1,motor_1_values.dir,motor_1_values.speed);
     HAL_Delay(1000);
 
 
