@@ -407,11 +407,11 @@ void MX_ADC1_Init(void)
    hadc1.Init.ScanConvMode = ENABLE;                    // Multi channel
    hadc1.Init.ContinuousConvMode = DISABLE;              // No continuous multi-channel repeat
    hadc1.Init.DiscontinuousConvMode = DISABLE;           // Discontinuous conversion, disabled since single channel
-   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;     // Software trigger using HAL_ADC_Start
+   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONVEDGE_NONE;    // Software trigger using HAL_ADC_Start
    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;           // Right aligned data, we want lower bits to hold the ADC result
    hadc1.Init.NbrOfConversion = 2;                       // two conversions
    hadc1.Init.DMAContinuousRequests = DISABLE;           // The ADC cannot transfer data directly to memory without CPU intervention.
-   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;        // Multi channel, so EOC (end of conversion) flag is set after end of sequence.
+   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;        // Send EOC flag after one convergence
    HAL_ADC_Init(&hadc1);
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 

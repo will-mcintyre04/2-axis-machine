@@ -251,7 +251,7 @@ int main(void)
 
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
     pot_2_val = HAL_ADC_GetValue(&hadc1);
-
+    
     HAL_ADC_Stop(&hadc1);
 
 
