@@ -80,26 +80,55 @@ TIM_HandleTypeDef htim2;
 
 typedef struct{
   eL6470_DirId_t dir;
-  uint8_t speed;
+  uint16_t speed;
 } motor_char;
 
-motor_char motor_conv(uint8_t adc_val){
+uint32_t read_adc(ADC_HandleTypeDef* adc){
+  HAL_ADC_PollForConversion(adc, HAL_MAX_DELAY);
+  return HAL_ADC_GetValue(adc);
+}
+
+motor_char motor_conv(uint8_t adc_val) {
   motor_char motor;
-  
-  if(adc_val >= 147){
-    motor.dir = 1;
-    motor.speed = 1000*(adc_val - 147)/108;
-  }
-  else if(adc_val <= 108){
-    motor.dir = 0;
-    motor.speed = 1000*(adc_val)/108;
-  }
-  else{
-    motor.dir = 1;
-    motor.speed = 0;
+
+  // Define dead zone range
+  const uint8_t DEAD_ZONE_LOW = 108;
+  const uint8_t DEAD_ZONE_HIGH = 147;
+  const uint16_t MAX_SPEED = 1000;
+
+  // Forward direction
+  if (adc_val > DEAD_ZONE_HIGH) {
+      motor.dir = 1;
+      motor.speed = (uint16_t)(((adc_val - DEAD_ZONE_HIGH) * MAX_SPEED) / (255 - DEAD_ZONE_HIGH));
+  } 
+  // Forward direction
+  else if (adc_val < DEAD_ZONE_LOW) {
+      motor.dir = 0;
+      motor.speed = (uint16_t)(((DEAD_ZONE_LOW - adc_val) * MAX_SPEED) / DEAD_ZONE_LOW);
+  } 
+  // Dead zone
+  else {
+      motor.dir = 1; 
+      motor.speed = 0;
   }
 
   return motor;
+}
+
+
+void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
+  motor_char motor_1 = motor_conv(pot_1_val);
+  motor_char motor_2 = motor_conv(pot_2_val);
+
+  static char msg[100];
+  snprintf(msg, sizeof(msg),
+            "ADC Pot 1: %lu ADC Pot 2: %lu\r\n"
+            "Motor Speed 1: %lu%lu Motor Speed 2: %lu%lu\r\n",
+            pot_1_val, pot_2_val,
+            motor_1.dir, motor_1.speed,
+            motor_2.dir, motor_2.speed);
+
+  USART_Transmit(&huart2, msg);
 }
 
 void MX_TIM2_Init(void)
@@ -252,16 +281,15 @@ int main(void)
   //   L6470_Run(0,1,1000);
   // }
   // if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
-    L6470_PrepareRun(1,1,1000);
-    L6470_Run(1,1,1000);
+  //   L6470_PrepareRun(1,1,1000);
+  //   L6470_Run(1,1,1000);
   // }
   // USART_Transmit(&huart2, "Motor starting\n\r");
   //HAL_ADC_Start(&hadc1); //enables continous conversion
 
   while (1)
   {
-    uint16_t pot_1_val;
-    uint16_t pot_2_val;
+    volatile uint32_t pot_1_val, pot_2_val;
     motor_char motor_1_values, motor_2_values;
     char msg[100];
 
@@ -269,22 +297,14 @@ int main(void)
     HAL_ADC_Start(&hadc1);
 
     // Get ADC values
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    pot_1_val = HAL_ADC_GetValue(&hadc1);
-    motor_1_values = motor_conv(pot_1_val);
-
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    pot_2_val = HAL_ADC_GetValue(&hadc1);
-    motor_2_values = motor_conv(pot_2_val);
+    pot_1_val = read_adc(&hadc1);
+    pot_2_val = read_adc(&hadc1);
+    
+    // Control motors
+    motor_control(pot_1_val, pot_2_val);
     
     HAL_ADC_Stop(&hadc1);
 
-
-    // Convert to string and print
-    sprintf(msg, "ADC Pot 1: %lu ADC Pot 2: %lu\r\nMotor Speed 1: %lu Motor Speed 2: %lu\r\n", pot_1_val, pot_2_val, motor_1_values.speed, motor_2_values.speed);
-    USART_Transmit(&huart2, msg);
-    L6470_PrepareRun(1,motor_1_values.dir,motor_1_values.speed);
-    L6470_Run(1,motor_1_values.dir,motor_1_values.speed);
     HAL_Delay(1000);
 
 
