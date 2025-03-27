@@ -65,7 +65,11 @@ void USART2_IRQHandler(void);
 void TIM2_IRQHandler(void);
 
 extern TIM_HandleTypeDef htim2; // External declaration
-
+extern uint8_t limit_check; 
+// 6: x+ (right)
+// 7: x- (left)
+// 8: y+ (up)
+// 9: y- (down)
 
 
 /**

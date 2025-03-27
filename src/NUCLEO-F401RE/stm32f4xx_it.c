@@ -125,9 +125,11 @@ void EXTI9_5_IRQHandler(void)
       if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_RESET){
         return;
       }
-      USART_Transmit(&huart2, "PIN 6");
+      limit_check = 6;
       L6470_PrepareHardStop(0);
       L6470_HardStop(0);
+      L6470_PrepareHardStop(1);
+      L6470_HardStop(1);
   }
 
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET) {
@@ -137,9 +139,11 @@ void EXTI9_5_IRQHandler(void)
       if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
         return;
       }
-      USART_Transmit(&huart2, "PIN 7");
+      limit_check = 7;
       L6470_PrepareHardStop(0);
       L6470_HardStop(0);
+      L6470_PrepareHardStop(1);
+      L6470_HardStop(1);
   }
 
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET) {
@@ -149,7 +153,9 @@ void EXTI9_5_IRQHandler(void)
       if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET){
         return;
       }
-      USART_Transmit(&huart2, "PIN 8");
+      limit_check = 8;
+      L6470_PrepareHardStop(0);
+      L6470_HardStop(0);
       L6470_PrepareHardStop(1);
       L6470_HardStop(1);
   }
@@ -161,7 +167,9 @@ void EXTI9_5_IRQHandler(void)
       if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
         return;
       }
-      USART_Transmit(&huart2, "PIN 9");
+      limit_check = 9;
+      L6470_PrepareHardStop(0);
+      L6470_HardStop(0);
       L6470_PrepareHardStop(1);
       L6470_HardStop(1);
   }

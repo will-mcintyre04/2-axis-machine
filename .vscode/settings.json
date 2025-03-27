@@ -6,6 +6,7 @@
         "example.h": "c",
         "example_usart.h": "c",
         "params.h": "c",
-        "xnucleoihm02a1_interface.h": "c"
+        "xnucleoihm02a1_interface.h": "c",
+        "stm32f4xx_it.h": "c"
     }
 }

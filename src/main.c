@@ -39,7 +39,14 @@
 #include "example_usart.h"
 #include "params.h"
 #include "xnucleoihm02a1.h"
+#include "stm32f4xx_it.h"
 TIM_HandleTypeDef htim2;
+uint8_t limit_check = 0;
+const uint16_t RETURN_SPEED = 8000;
+const uint16_t MAX_SPEED = 16000;
+// Define dead zone range
+const uint8_t DEAD_ZONE_LOW = 108;
+const uint8_t DEAD_ZONE_HIGH = 147;
 
 /**
   * @defgroup   MotionControl
@@ -91,11 +98,6 @@ uint32_t read_adc(ADC_HandleTypeDef* adc){
 motor_char motor_conv(uint8_t adc_val) {
   motor_char motor;
 
-  // Define dead zone range
-  const uint8_t DEAD_ZONE_LOW = 108;
-  const uint8_t DEAD_ZONE_HIGH = 147;
-  const uint16_t MAX_SPEED = 1000;
-
   // Forward direction
   if (adc_val > DEAD_ZONE_HIGH) {
       motor.dir = 1;
@@ -130,11 +132,43 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
 
   USART_Transmit(&huart2, msg);
 
-  L6470_PrepareRun(0,motor_1.dir,motor_1.speed);
-  L6470_Run(0,motor_1.dir,motor_1.speed);
-  L6470_PrepareRun(1,motor_2.dir,motor_2.speed);
-  L6470_Run(1,motor_2.dir,motor_2.speed);
-  
+  switch (limit_check) {
+    case 6: //x+
+      limit_check = 0;
+      USART_Transmit(&huart2, "PIN 6: X+");
+      L6470_PrepareRun(0,0,RETURN_SPEED);
+      L6470_Run(0,0,RETURN_SPEED);
+      HAL_Delay(2000);
+      break;
+    case 7: //x-
+      limit_check = 0;
+      USART_Transmit(&huart2, "PIN 7: X-");
+      L6470_PrepareRun(0,1,RETURN_SPEED);
+      L6470_Run(0,1,RETURN_SPEED);
+      HAL_Delay(2000);
+      break;
+    case 8: //y+
+      limit_check = 0;
+      USART_Transmit(&huart2, "PIN 8: Y+");
+      L6470_PrepareRun(1,1,RETURN_SPEED);
+      L6470_Run(1,1,RETURN_SPEED);
+      HAL_Delay(2000);
+      break;
+    case 9: //y-
+      limit_check = 0;
+      USART_Transmit(&huart2, "PIN 9: Y-");
+      L6470_PrepareRun(1,0,RETURN_SPEED);
+      L6470_Run(1,0,RETURN_SPEED);
+      HAL_Delay(2000);
+      break;
+    default:
+      L6470_PrepareRun(0,motor_1.dir,motor_1.speed);
+      L6470_Run(0,motor_1.dir,motor_1.speed);
+      L6470_PrepareRun(1,motor_2.dir,motor_2.speed);
+      L6470_Run(1,motor_2.dir,motor_2.speed);
+      HAL_Delay(50);
+    break;
+  }
 }
 
 void MX_TIM2_Init(void)
@@ -310,8 +344,6 @@ int main(void)
     motor_control(pot_1_val, pot_2_val);
     
     HAL_ADC_Stop(&hadc1);
-
-    HAL_Delay(1000);
 
 
     /* Check if any Application Command for L6470 has been entered by USART */
