@@ -101,7 +101,7 @@ motor_char motor_conv(uint8_t adc_val) {
       motor.dir = 1;
       motor.speed = (uint16_t)(((adc_val - DEAD_ZONE_HIGH) * MAX_SPEED) / (255 - DEAD_ZONE_HIGH));
   } 
-  // Forward direction
+  // Backward direction
   else if (adc_val < DEAD_ZONE_LOW) {
       motor.dir = 0;
       motor.speed = (uint16_t)(((DEAD_ZONE_LOW - adc_val) * MAX_SPEED) / DEAD_ZONE_LOW);
