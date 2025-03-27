@@ -129,6 +129,12 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
             motor_2.dir, motor_2.speed);
 
   USART_Transmit(&huart2, msg);
+
+  L6470_PrepareRun(0,motor_1.dir,motor_1.speed);
+  L6470_Run(0,motor_1.dir,motor_1.speed);
+  L6470_PrepareRun(1,motor_2.dir,motor_2.speed);
+  L6470_Run(1,motor_2.dir,motor_2.speed);
+  
 }
 
 void MX_TIM2_Init(void)
