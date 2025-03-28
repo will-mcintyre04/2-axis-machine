@@ -128,8 +128,6 @@ void EXTI9_5_IRQHandler(void)
       limit_check[0] = 1;
       L6470_PrepareHardStop(0);
       L6470_HardStop(0);
-      L6470_PrepareHardStop(1);
-      L6470_HardStop(1);
   }
 
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_7) != RESET) {
@@ -142,8 +140,6 @@ void EXTI9_5_IRQHandler(void)
       limit_check[1] = 1;
       L6470_PrepareHardStop(0);
       L6470_HardStop(0);
-      L6470_PrepareHardStop(1);
-      L6470_HardStop(1);
   }
 
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_8) != RESET) {
@@ -154,8 +150,6 @@ void EXTI9_5_IRQHandler(void)
         return;
       }
       limit_check[2] = 1;
-      L6470_PrepareHardStop(0);
-      L6470_HardStop(0);
       L6470_PrepareHardStop(1);
       L6470_HardStop(1);
   }
@@ -168,8 +162,6 @@ void EXTI9_5_IRQHandler(void)
         return;
       }
       limit_check[3] = 1;
-      L6470_PrepareHardStop(0);
-      L6470_HardStop(0);
       L6470_PrepareHardStop(1);
       L6470_HardStop(1);
   }

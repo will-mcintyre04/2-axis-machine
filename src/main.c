@@ -42,7 +42,7 @@
 #include "stm32f4xx_it.h"
 
 TIM_HandleTypeDef htim2;
-limit_check = {0,0,0,0};
+uint8_t limit_check[4] = {0,0,0,0};
 const uint16_t RETURN_SPEED = 8000;
 const uint16_t MAX_SPEED = 16000;
 // Define dead zone range
