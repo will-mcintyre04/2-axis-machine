@@ -136,32 +136,32 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
   USART_Transmit(&huart2, msg);
 
  if(limit_check[0] == 1){
-  limit_check[0] = 0;
-  USART_Transmit(&huart2, "PIN 6: X+");
-  L6470_PrepareRun(0,0,RETURN_SPEED);
-  L6470_Run(0,0,RETURN_SPEED);
-  HAL_Delay(2000);
+   limit_check[0] = 0;
+   USART_Transmit(&huart2, "PIN 6: X+");
+   L6470_PrepareRun(0,0,RETURN_SPEED);
+   L6470_Run(0,0,RETURN_SPEED);
+   HAL_Delay(2000);
  }
  if(limit_check[1] == 1){
-  limit_check[1] = 0;
-  USART_Transmit(&huart2, "PIN 7: X-");
-  L6470_PrepareRun(0,1,RETURN_SPEED);
-  L6470_Run(0,1,RETURN_SPEED);
-  HAL_Delay(2000);
+   limit_check[1] = 0;
+   USART_Transmit(&huart2, "PIN 7: X-");
+   L6470_PrepareRun(0,1,RETURN_SPEED);
+   L6470_Run(0,1,RETURN_SPEED);
+   HAL_Delay(2000);
  }
  if(limit_check[2] == 1){
-  limit_check[2] = 0;
-  USART_Transmit(&huart2, "PIN 8: Y+");
-  L6470_PrepareRun(1,1,RETURN_SPEED);
-  L6470_Run(1,1,RETURN_SPEED);
-  HAL_Delay(2000);
+   limit_check[2] = 0;
+   USART_Transmit(&huart2, "PIN 8: Y+");
+   L6470_PrepareRun(1,1,RETURN_SPEED);
+   L6470_Run(1,1,RETURN_SPEED);
+   HAL_Delay(2000);
  }
  if(limit_check[3] == 1){
-  limit_check[3] = 0;
-  USART_Transmit(&huart2, "PIN 9: Y-");
-  L6470_PrepareRun(1,0,RETURN_SPEED);
-  L6470_Run(1,0,RETURN_SPEED);
-  HAL_Delay(2000);
+   limit_check[3] = 0;
+   USART_Transmit(&huart2, "PIN 9: Y-");
+   L6470_PrepareRun(1,0,RETURN_SPEED);
+   L6470_Run(1,0,RETURN_SPEED);
+   HAL_Delay(2000);
  }
  if(limit_check[0] == 0 && limit_check[1] == 0 && limit_check[2] == 0 && limit_check[3] == 0){
   L6470_PrepareRun(0,motor_1.dir,motor_1.speed);
