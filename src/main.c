@@ -98,6 +98,13 @@ uint32_t read_adc(ADC_HandleTypeDef* adc){
   return HAL_ADC_GetValue(adc);
 }
 
+uint8_t limit_switches_triggered() {
+  return (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_SET ||
+          HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_SET ||
+          HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_SET ||
+          HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET) ? 1 : 0;
+}
+
 motor_char motor_conv(uint8_t adc_val) {
   motor_char motor;
 
@@ -133,7 +140,6 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
             motor_1.dir, motor_1.speed,
             motor_2.dir, motor_2.speed);
 
-  USART_Transmit(&huart2, msg);
 
  if(limit_check[0] == 1){
    limit_check[0] = 0;
@@ -163,7 +169,9 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
    L6470_Run(1,0,RETURN_SPEED);
    HAL_Delay(2000);
  }
- if(limit_check[0] == 0 && limit_check[1] == 0 && limit_check[2] == 0 && limit_check[3] == 0){
+ // Ensure that no rising edges have been detected and the limit switches are not triggered before moving motors.
+ if(limit_check[0] == 0 && limit_check[1] == 0 && limit_check[2] == 0 && limit_check[3] == 0 && !limit_switches_triggered()){
+  USART_Transmit(&huart2, "Motors moving.");
   L6470_PrepareRun(0,motor_1.dir,motor_1.speed);
   L6470_Run(0,motor_1.dir,motor_1.speed);
   L6470_PrepareRun(1,motor_2.dir,motor_2.speed);
@@ -346,6 +354,8 @@ int main(void)
     motor_control(pot_1_val, pot_2_val);
     
     HAL_ADC_Stop(&hadc1);
+
+    HAL_Delay(1000);
 
 
     /* Check if any Application Command for L6470 has been entered by USART */

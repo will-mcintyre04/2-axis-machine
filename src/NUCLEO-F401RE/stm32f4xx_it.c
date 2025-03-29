@@ -117,7 +117,7 @@ void USART2_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
   // Debouncing
-  const int delay = 200000;
+  const int delay = 400000;
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) {
     for (volatile int i=0; i < delay; i++) {
     }
