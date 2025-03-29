@@ -43,7 +43,7 @@
 
 TIM_HandleTypeDef htim2;
 uint8_t limit_check[4] = {0,0,0,0};
-const uint16_t RETURN_SPEED = 8000;
+const uint16_t RETURN_STEPS = 18000;
 const uint16_t MAX_SPEED = 16000;
 // Define dead zone range
 const uint8_t DEAD_ZONE_LOW = 108;
@@ -144,29 +144,29 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
  if(limit_check[0] == 1){
    limit_check[0] = 0;
    USART_Transmit(&huart2, "PIN 6: X+");
-   L6470_PrepareRun(0,0,RETURN_SPEED);
-   L6470_Run(0,0,RETURN_SPEED);
+   L6470_PrepareMove(0,0,RETURN_STEPS);
+   L6470_Move(0,0,RETURN_STEPS);
    HAL_Delay(2000);
  }
  if(limit_check[1] == 1){
    limit_check[1] = 0;
    USART_Transmit(&huart2, "PIN 7: X-");
-   L6470_PrepareRun(0,1,RETURN_SPEED);
-   L6470_Run(0,1,RETURN_SPEED);
+   L6470_PrepareMove(0,1,RETURN_STEPS);
+   L6470_Move(0,1,RETURN_STEPS);
    HAL_Delay(2000);
  }
  if(limit_check[2] == 1){
    limit_check[2] = 0;
    USART_Transmit(&huart2, "PIN 8: Y+");
-   L6470_PrepareRun(1,1,RETURN_SPEED);
-   L6470_Run(1,1,RETURN_SPEED);
+   L6470_PrepareMove(1,1,RETURN_STEPS);
+   L6470_Move(1,1,RETURN_STEPS);
    HAL_Delay(2000);
  }
  if(limit_check[3] == 1){
    limit_check[3] = 0;
    USART_Transmit(&huart2, "PIN 9: Y-");
-   L6470_PrepareRun(1,0,RETURN_SPEED);
-   L6470_Run(1,0,RETURN_SPEED);
+   L6470_PrepareMove(1,0,RETURN_STEPS);
+   L6470_Move(1,0,RETURN_STEPS);
    HAL_Delay(2000);
  }
  // Ensure that no rising edges have been detected and the limit switches are not triggered before moving motors.
