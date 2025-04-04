@@ -43,7 +43,7 @@
 
 TIM_HandleTypeDef htim2;
 uint8_t limit_check[4] = {0,0,0,0};
-const uint16_t MAX_SPEED = 27000;
+const uint16_t MAX_SPEED = 26000;
 // Define dead zone range
 const uint8_t DEAD_ZONE_LOW = 108;
 const uint8_t DEAD_ZONE_HIGH = 147;
