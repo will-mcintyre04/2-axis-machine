@@ -117,14 +117,19 @@ void USART2_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
   // Debouncing
-  const int delay = 400000;
+  const int delay = 200000;
   if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_6) != RESET) {
     for (volatile int i=0; i < delay; i++) {
     }
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_6);
-      if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_RESET){
+      if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_RESET ){
         return;
       }
+      //axis conflict
+      if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_SET) {
+        limit_check[1] = 1;
+      }
+
       limit_check[0] = 1;
       L6470_PrepareHardStop(0);
       L6470_HardStop(0);
@@ -136,6 +141,10 @@ void EXTI9_5_IRQHandler(void)
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_7);
       if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
         return;
+      }
+      //axis conflict
+      if (HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_SET) {
+        limit_check[0] = 1;
       }
       limit_check[1] = 1;
       L6470_PrepareHardStop(0);
@@ -149,6 +158,10 @@ void EXTI9_5_IRQHandler(void)
       if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET){
         return;
       }
+      //axis conflict
+      if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_SET) {
+        limit_check[3] = 1;
+      }
       limit_check[2] = 1;
       L6470_PrepareHardStop(1);
       L6470_HardStop(1);
@@ -160,6 +173,10 @@ void EXTI9_5_IRQHandler(void)
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_9);
       if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
         return;
+      }
+      //axis conflict
+      if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_SET) {
+        limit_check[2] = 1;
       }
       limit_check[3] = 1;
       L6470_PrepareHardStop(1);

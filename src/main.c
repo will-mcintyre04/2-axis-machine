@@ -43,8 +43,7 @@
 
 TIM_HandleTypeDef htim2;
 uint8_t limit_check[4] = {0,0,0,0};
-const uint16_t RETURN_STEPS = 18000;
-const uint16_t MAX_SPEED = 16000;
+const uint16_t MAX_SPEED = 27000;
 // Define dead zone range
 const uint8_t DEAD_ZONE_LOW = 108;
 const uint8_t DEAD_ZONE_HIGH = 147;
@@ -129,9 +128,11 @@ motor_char motor_conv(uint8_t adc_val) {
 
 
 void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
+  // Convert the potentiometer value to a motor speed and direction
   motor_char motor_1 = motor_conv(pot_1_val);
   motor_char motor_2 = motor_conv(pot_2_val);
 
+  // Print out the ADC values and motor speeds
   static char msg[100];
   snprintf(msg, sizeof(msg),
             "ADC Pot 1: %lu ADC Pot 2: %lu\r\n"
@@ -140,38 +141,46 @@ void motor_control(uint32_t pot_1_val, uint32_t pot_2_val){
             motor_1.dir, motor_1.speed,
             motor_2.dir, motor_2.speed);
 
+  USART_Transmit(&huart2, msg);
 
- if(limit_check[0] == 1){
+ // Handle the specific limit checks
+ if(limit_check[0] == 1 && !limit_check[1] && HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_7) == GPIO_PIN_RESET){
    limit_check[0] = 0;
    USART_Transmit(&huart2, "PIN 6: X+");
-   L6470_PrepareMove(0,0,RETURN_STEPS);
-   L6470_Move(0,0,RETURN_STEPS);
+   L6470_PrepareRun(0,0,MAX_SPEED);
+   L6470_Run(0,0,MAX_SPEED);
    HAL_Delay(2000);
  }
- if(limit_check[1] == 1){
+ if(limit_check[1] == 1 && !limit_check[0] && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_6) == GPIO_PIN_RESET){
    limit_check[1] = 0;
    USART_Transmit(&huart2, "PIN 7: X-");
-   L6470_PrepareMove(0,1,RETURN_STEPS);
-   L6470_Move(0,1,RETURN_STEPS);
+   L6470_PrepareRun(0,1,MAX_SPEED);
+   L6470_Run(0,1,MAX_SPEED);
    HAL_Delay(2000);
  }
- if(limit_check[2] == 1){
+ if(limit_check[2] == 1 && !limit_check[3] && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_9) == GPIO_PIN_RESET){
    limit_check[2] = 0;
    USART_Transmit(&huart2, "PIN 8: Y+");
-   L6470_PrepareMove(1,1,RETURN_STEPS);
-   L6470_Move(1,1,RETURN_STEPS);
+   L6470_PrepareRun(1,1,MAX_SPEED);
+   L6470_Run(1,1,MAX_SPEED);
    HAL_Delay(2000);
  }
- if(limit_check[3] == 1){
+ if(limit_check[3] == 1 && !limit_check[2] && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == GPIO_PIN_RESET){
    limit_check[3] = 0;
    USART_Transmit(&huart2, "PIN 9: Y-");
-   L6470_PrepareMove(1,0,RETURN_STEPS);
-   L6470_Move(1,0,RETURN_STEPS);
+   L6470_Run(1,0,MAX_SPEED);
+   L6470_Run(1,0,MAX_SPEED);
    HAL_Delay(2000);
+ }
+ // axis conflict
+ if((limit_check[0] && limit_check[1]) || (limit_check[2] && limit_check[3])){
+  L6470_PrepareRun(0,0,0);
+  L6470_Run(0,0,0);
+  L6470_PrepareRun(1,0,0);
+  L6470_Run(1,0,0);
  }
  // Ensure that no rising edges have been detected and the limit switches are not triggered before moving motors.
  if(limit_check[0] == 0 && limit_check[1] == 0 && limit_check[2] == 0 && limit_check[3] == 0 && !limit_switches_triggered()){
-  USART_Transmit(&huart2, "Motors moving.");
   L6470_PrepareRun(0,motor_1.dir,motor_1.speed);
   L6470_Run(0,motor_1.dir,motor_1.speed);
   L6470_PrepareRun(1,motor_2.dir,motor_2.speed);
@@ -354,7 +363,7 @@ int main(void)
     
     HAL_ADC_Stop(&hadc1);
 
-    HAL_Delay(1000);
+    HAL_Delay(50);
 
 
     /* Check if any Application Command for L6470 has been entered by USART */
